@@ -1,0 +1,42 @@
+import type { User } from '@perf-appraisal-app/shared'
+import { prisma } from '../db.js'
+import { getRoleDefinition } from './roles.service.js'
+
+export async function mapDbUser(row: {
+  id: number
+  username: string | null
+  role: string
+  tbl_group_id: string | null
+  tbl_unit_id: string | null
+  tbl_section_id: number | null
+  tbl_financialyear_id: number | null
+}): Promise<User> {
+  const def = await getRoleDefinition(row.role)
+  return {
+    id: row.id,
+    username: row.username,
+    role: row.role,
+    groupId: row.tbl_group_id,
+    unitId: row.tbl_unit_id,
+    sectionId: row.tbl_section_id,
+    financialYearId: row.tbl_financialyear_id,
+    permissions: {
+      canAppraisals: def.canAppraisals,
+      canFinancialYears: def.canFinancialYears,
+      canOrganization: def.canOrganization,
+      canLetterCc: def.canLetterCc,
+      canDecisionMatrix: def.canDecisionMatrix,
+      canThroughOfficers: def.canThroughOfficers,
+      canImportHistory: def.canImportHistory,
+      canExportHistory: def.canExportHistory,
+      canUsers: def.canUsers,
+      canRoles: def.canRoles,
+    },
+    jurisdiction: def.jurisdiction,
+  }
+}
+
+export async function findUserById(id: number): Promise<User | null> {
+  const row = await prisma.tbl_users.findUnique({ where: { id } })
+  return row ? mapDbUser(row) : null
+}

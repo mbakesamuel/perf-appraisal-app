@@ -1,0 +1,281 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model tbl_award {
+  id    Int     @id @default(autoincrement())
+  award String? @db.VarChar(255)
+}
+
+
+model tbl_designation {
+  id          Int     @id @default(autoincrement())
+  designation String? @db.VarChar(255)
+  g           String? @db.VarChar(255)
+}
+
+
+model tbl_perfappraisal {
+  id            Int       @id @default(autoincrement())
+  appyear       Int?
+  matric        String?   @db.VarChar(6)
+  date_lmerit   DateTime? @db.DateTime(0)
+  date_lstat    DateTime? @db.DateTime(0)
+  date_lpro     DateTime? @db.DateTime(0)
+  lengthservice String?   @db.VarChar(255)
+  pre_cat       String?   @db.VarChar(255)
+  pro_cat       String?   @db.VarChar(255)
+  tbl_award_id  Int?
+}
+
+
+model tbl_personel_category {
+  id      Int       @id @default(autoincrement())
+  matric  String?   @db.VarChar(255)
+  cat     String?   @db.VarChar(255)
+  effdate DateTime? @db.DateTime(0)
+
+  @@index([matric], map: "idx_matric")
+  @@index([cat], map: "tbl_section_id")
+}
+
+
+model tbl_personel_designation {
+  id                Int                @id @default(autoincrement())
+  matric            String?            @db.VarChar(255)
+  design            String?            @db.VarChar(255)
+  effdate           DateTime?          @db.DateTime(0)
+  tbl_personel_list tbl_personel_list? @relation(fields: [matric], references: [matric], onDelete: Cascade, map: "tbl_personel_listtbl_personel_designation")
+
+  @@index([matric], map: "idx_matric")
+  @@index([design], map: "tbl_designation_id")
+}
+
+model tbl_personel_list {
+  matric                   String                     @id @db.VarChar(255)
+  names                    String?                    @db.VarChar(255)
+  sex                      String?                    @db.VarChar(1)
+  date_birth               DateTime?                  @db.DateTime(0)
+  date_eng                 DateTime?                  @db.DateTime(0)
+  housing_                 Boolean                    @default(false)
+  pcus_                    Boolean                    @default(false)
+  sev_pay                  Int?                       @default(0)
+  active_                  Boolean                    @default(true)
+  tbl_personel_designation tbl_personel_designation[]
+  tbl_personel_section     tbl_personel_section[]
+}
+
+model tbl_personel_section {
+  id                Int                @id @default(autoincrement())
+  matric            String?            @db.VarChar(255)
+  tbl_section_id    String?            @default("0")
+  effdate           DateTime?          @db.DateTime(0)
+  tbl_personel_list tbl_personel_list? @relation(fields: [matric], references: [matric], onDelete: Cascade, map: "tbl_personel_listtbl_personel_section")
+
+  @@index([matric], map: "idx_matric")
+  @@index([tbl_section_id], map: "idx_tbl_section_id")
+}
+
+model tbl_salaryreview {
+  id             Int       @id @default(autoincrement())
+  appyear        Int?
+  matric         String?   @db.VarChar(6)
+  names          String?   @db.VarChar(255)
+  tbl_section_id Float?
+  designation    String?   @db.VarChar(255)
+  dateeng        DateTime? @db.DateTime(0)
+  lengthservice  String?   @db.VarChar(255)
+  date_lpro      DateTime? @db.DateTime(0)
+  date_lmer      DateTime? @db.DateTime(0)
+  date_lstat     DateTime? @db.DateTime(0)
+  precat         String?   @db.VarChar(255)
+  procat         String?   @db.VarChar(255)
+  presalary      Int?
+  prosalary      Int?
+  finincmonth    Int?
+  finincyear     Int?
+  award          String?   @db.VarChar(255)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tbl_scale1 {
+  catid      Int          @id @default(autoincrement())
+  cat        Int?
+  tbl_scale2 tbl_scale2[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tbl_scale2 {
+  echid      Int         @id @default(autoincrement())
+  ech        String?     @db.VarChar(50)
+  bsal       Int         @default(0)
+  catid      Int?        @default(0)
+  tbl_scale1 tbl_scale1? @relation(fields: [catid], references: [catid], onDelete: Cascade, map: "_24ba9bd7-e161-4baa-80f4-a52528d50bb5_")
+
+  @@index([catid], map: "idx_catid")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tbl_section {
+  id               Int                @id
+  section          String?            @db.VarChar(255)
+  tbl_unit_id      String?            @db.VarChar(3)
+  active           Boolean            @default(true)
+  tbl_section_thro tbl_section_thro[]
+
+  @@index([tbl_unit_id], map: "ecode")
+}
+
+model tbl_financialyear {
+  id        Int         @id @default(autoincrement())
+  appyear   Int         @unique
+  closed    Boolean     @default(false)
+  tbl_users tbl_users[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tbl_users {
+  id                   Int                @id @default(autoincrement())
+  username             String?            @db.VarChar(255)
+  password             String?            @db.VarChar(255)
+  tbl_financialyear_id Int?
+  role                 String             @default("SECRETARY") @db.VarChar(30)
+  tbl_group_id         String?
+  tbl_section_id       Int?
+  tbl_unit_id          String?            @db.VarChar(3)
+  tbl_financialyear    tbl_financialyear? @relation(fields: [tbl_financialyear_id], references: [id])
+
+  @@index([tbl_financialyear_id])
+  @@index([tbl_group_id])
+  @@index([tbl_unit_id])
+  @@index([tbl_section_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tbl_group {
+  id         String   @id
+  group_name String
+  active     Boolean  @default(true)
+  createdat  DateTime @default(now())
+  updatedat  DateTime
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tbl_unit {
+  id        String   @id
+  unit_name String
+  groupid   String
+  active    Boolean  @default(true)
+  createdat DateTime @default(now())
+  updatedat DateTime
+
+  @@index([groupid], map: "unit_groupid_fkey")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tbl_unit_signatory {
+  id          Int       @id @default(autoincrement())
+  tbl_unit_id String?   @db.VarChar(3)
+  signatory   String?   @db.VarChar(255)
+  title       String?   @db.VarChar(255)
+  effdate     DateTime? @db.DateTime(0)
+
+  @@index([tbl_unit_id], map: "idx_tbl_estate_id")
+}
+
+model tbl_roles {
+  code                 String  @id @db.VarChar(30)
+  label                String  @db.VarChar(120)
+  jurisdiction         String  @db.VarChar(20)
+  can_appraisals       Boolean @default(true)
+  can_financial_years  Boolean @default(false)
+  can_organization     Boolean @default(false)
+  can_letter_cc        Boolean @default(false)
+  can_decision_matrix  Boolean @default(false)
+  can_through_officers Boolean @default(false)
+  can_import_history   Boolean @default(false)
+  can_export_history   Boolean @default(false)
+  can_users            Boolean @default(false)
+  can_roles            Boolean @default(false)
+}
+
+/// Signing band for appraisal letters (seeded; category ranges are fixed).
+model tbl_decision_level {
+  code                     String                     @id @db.VarChar(30)
+  title                    String                     @db.VarChar(120)
+  cat_from                 Int
+  cat_to                   Int
+  scope                    String                     @db.VarChar(10)
+  tbl_decision_assignment  tbl_decision_assignment[]
+}
+
+/// Dated holder of a decision-level office (unit/group scoped when required).
+model tbl_decision_assignment {
+  id                       Int                 @id @default(autoincrement())
+  level_code               String              @db.VarChar(30)
+  signatory                String              @db.VarChar(255)
+  title                    String              @db.VarChar(255)
+  tbl_unit_id              String?             @db.VarChar(3)
+  tbl_group_id             String?
+  effdate                  DateTime            @db.DateTime(0)
+  tbl_decision_level       tbl_decision_level  @relation(fields: [level_code], references: [code], onDelete: Restrict)
+
+  @@index([level_code])
+  @@index([tbl_unit_id])
+  @@index([tbl_group_id])
+  @@index([effdate])
+  @@unique([level_code, tbl_unit_id, effdate], map: "uniq_decision_unit_effdate")
+  @@unique([level_code, tbl_group_id, effdate], map: "uniq_decision_group_effdate")
+}
+
+/// Memo CC copies printed on appraisal letters. Inactive rows are omitted at print time.
+model tbl_letter_cc {
+  id                      Int                       @id @default(autoincrement())
+  label                   String                    @unique @db.VarChar(120)
+  sort_order              Int
+  active                  Boolean                   @default(true)
+  tbl_unit_letter_cc_hide tbl_unit_letter_cc_hide[]
+
+  @@index([sort_order])
+}
+
+/// Unit-level hide of a corporation CC copy.
+model tbl_unit_letter_cc_hide {
+  id            Int          @id @default(autoincrement())
+  tbl_unit_id   String       @db.VarChar(3)
+  letter_cc_id  Int
+  tbl_letter_cc tbl_letter_cc @relation(fields: [letter_cc_id], references: [id], onDelete: Cascade)
+
+  @@unique([tbl_unit_id, letter_cc_id], map: "uniq_unit_letter_cc_hide")
+  @@index([tbl_unit_id])
+}
+
+/// Extra CC copies that apply only to one unit.
+model tbl_unit_letter_cc {
+  id          Int     @id @default(autoincrement())
+  tbl_unit_id String  @db.VarChar(3)
+  label       String  @db.VarChar(120)
+  sort_order  Int
+  active      Boolean @default(true)
+
+  @@unique([tbl_unit_id, label], map: "uniq_unit_letter_cc_label")
+  @@index([tbl_unit_id, sort_order])
+}
+
+/// Dated Through (Thro') holder for a section. Name is historical; letters print title only.
+model tbl_section_thro {
+  id             Int         @id @default(autoincrement())
+  tbl_section_id Int
+  signatory      String      @db.VarChar(255)
+  title          String      @db.VarChar(255)
+  effdate        DateTime    @db.DateTime(0)
+  tbl_section    tbl_section @relation(fields: [tbl_section_id], references: [id], onDelete: Restrict)
+
+  @@index([tbl_section_id])
+  @@index([effdate])
+  @@unique([tbl_section_id, effdate], map: "uniq_section_thro_effdate")
+}

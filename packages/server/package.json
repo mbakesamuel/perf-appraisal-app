@@ -1,0 +1,46 @@
+{
+  "name": "@perf-appraisal-app/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/app.ts",
+      "import": "./src/app.ts",
+      "default": "./dist/app.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "seed:financial-years": "tsx src/scripts/seed-financial-years.ts",
+    "seed:roles": "tsx src/scripts/seed-roles.ts",
+    "seed:roles-table": "tsx src/scripts/seed-roles-table.ts",
+    "seed:decision-levels": "tsx src/scripts/seed-decision-levels.ts",
+    "seed:letter-cc": "tsx src/scripts/seed-letter-cc.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.1",
+    "@hono/zod-validator": "^0.4.3",
+    "@perf-appraisal-app/shared": "*",
+    "@prisma/adapter-mariadb": "^7.9.0",
+    "@prisma/client": "^7.9.0",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^16.4.7",
+    "hono": "^4.7.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.13.10",
+    "prisma": "^7.9.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
